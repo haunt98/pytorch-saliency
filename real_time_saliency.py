@@ -25,7 +25,7 @@ SAVE_SIGNAL = False
 def numpy_to_wx(image):
     height, width, c = image.shape
     buffer = Image.fromarray(image).convert('RGB').tobytes()
-    bitmap = wx.BitmapFromBuffer(width, height, buffer)
+    bitmap = wx.Bitmap.FromBuffer(width, height, buffer)
     return bitmap
 
 class RealTimeSaliency(wx.Frame):
@@ -38,7 +38,7 @@ class RealTimeSaliency(wx.Frame):
 
         panel = wx.Panel(self, wx.ID_ANY)
         self.img_viewer = ImgViewPanel(self)
-        self.cls_viewer = ImgViewPanel(self)
+        self.cls_viewer = ImgViewPanel(panel)
 
 
 
