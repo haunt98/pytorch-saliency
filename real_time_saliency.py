@@ -311,8 +311,8 @@ def get_proc_fn(cuda=False):
         frame.cls_viewer.change_frame(cls_im)
 
 
+        global SAVE_SIGNAL
         if SAVE_SIGNAL:
-            global SAVE_SIGNAL
             save_img(sq, 'original')
             save_img(sq*(1-mask), 'destroyed')
             save_img(sq*mask, 'preserved')
