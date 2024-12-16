@@ -1,3 +1,4 @@
+import os
 import cv2
 from queue import Queue
 import time
@@ -101,13 +102,17 @@ class RealTimeSaliency(wx.Frame):
     def get_img(self):
         static_img_path = self.static_img_picker.GetPath()
         if static_img_path:
-            try:
+            if os.path.exists(static_img_path):
                 img = cv2.imread(static_img_path)
-                img = np.flip(img, 2)
-            except:
+                if img is not None:
+                    img = np.flip(img, 2)
+                    return img
+                else:
+                    print("OpenCV imread failed to load the image.")
+                    return None
+            else:
+                print(f"File does not exist: {static_img_path}")
                 return None
-            return img
-        return None
 
     def update(self):
         self.info.SetLabel('Showing: %s (logits: %f)' % (CLASS_ID_TO_NAME[TO_SHOW], LOGITS[TO_SHOW]))
