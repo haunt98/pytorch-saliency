@@ -308,7 +308,7 @@ def adapt_to_image_domain(images_plus_minus_one, desired_domain):
 class Bottleneck(Module):
     def __init__(self, in_channels, out_channels, stride=1, bottleneck_ratio=4, activation_fn=lambda: torch.nn.ReLU(inplace=False)):
         super(Bottleneck, self).__init__()
-        bottleneck_channels = out_channels/bottleneck_ratio
+        bottleneck_channels = out_channels//bottleneck_ratio
         self.conv1 = Conv2d(in_channels, bottleneck_channels, kernel_size=1, bias=False)
         self.bn1 = BatchNorm2d(bottleneck_channels)
         self.conv2 = Conv2d(bottleneck_channels, bottleneck_channels, kernel_size=3, stride=stride,
