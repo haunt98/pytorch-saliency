@@ -51,8 +51,8 @@ class RealTimeSaliency(wx.Frame):
 
         self.list_ctrl.InsertColumn(0, 'Class name', width=200)
 
+        # Static img (optional)
         self.static_img_picker = wx.FilePickerCtrl(panel)
-        self.static_img_picker.SetPath('Static img (optional)')
 
         self.slider_ctrl = wx.Slider(panel, value=4, minValue=-2, maxValue=11, style=wx.SL_MIN_MAX_LABELS|wx.SL_VALUE_LABEL)
         self.slider_ctrl.Bind(wx.EVT_SCROLL, self.on_slide)
