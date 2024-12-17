@@ -133,7 +133,7 @@ def SimpleCNNBlock(in_channels, out_channels,
         current_channels = in_channels
         _modules = []
         for layer in range(layers):
-            _modules.append(Conv2d(current_channels, out_channels, kernel_size, stride=stride if layer==0 else 1, padding=kernel_size/2, bias=not follow_with_bn))
+            _modules.append(Conv2d(current_channels, out_channels, kernel_size, stride=stride if layer==0 else 1, padding=kernel_size//2, bias=not follow_with_bn))
             current_channels = out_channels
             if follow_with_bn:
                 _modules.append(BatchNorm2d(current_channels, affine=affine))
