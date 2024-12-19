@@ -10,11 +10,10 @@ import numpy as np
 import pycat
 
 
-
-
 class SimpleClassifier(EasyModule):
-    '''Relatively fast and works well for 32x32 and 64x64 images. Achieves ~89% on CIFAR10 with base=24.
-       Returns all the intermediate features so it can serve as a feature extractor or a base for the U-Net decoder.'''
+    """Relatively fast and works well for 32x32 and 64x64 images. Achieves ~89% on CIFAR10 with base=24.
+    Returns all the intermediate features so it can serve as a feature extractor or a base for the U-Net decoder."""
+
     def __init__(self, base_channels=24, num_classes=10, image_channels=3):
         super(SimpleClassifier, self).__init__()
 
@@ -42,9 +41,3 @@ class SimpleClassifier(EasyModule):
     def out_to_logits(out):
         s0, s1, s2, s3, sX, sC = out
         return sC
-
-
-
-
-
-

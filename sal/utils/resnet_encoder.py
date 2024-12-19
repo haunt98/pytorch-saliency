@@ -1,9 +1,8 @@
-__all__ = ['ResNetEncoder', 'resnet50encoder']
+__all__ = ["ResNetEncoder", "resnet50encoder"]
 import torch
 import torch.utils.model_zoo as model_zoo
 from torchvision.models.resnet import ResNet, Bottleneck
 from .pytorch_fixes import adapt_to_image_domain
-
 
 
 class ResNetEncoder(ResNet):
@@ -44,19 +43,20 @@ def resnet50encoder(pretrained=True, **kwargs):
     """
     model = ResNetEncoder(Bottleneck, [3, 4, 6, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url('https://download.pytorch.org/models/resnet50-19c8e357.pth'))
+        model.load_state_dict(model_zoo.load_url("https://download.pytorch.org/models/resnet50-19c8e357.pth"))
     return model
 
 
 def get_resnet50encoder_black_box_fn():
-    ''' You can try any model from the pytorch model zoo (torchvision.models)
-        eg. VGG, inception, mobilenet, alexnet...
-    '''
+    """You can try any model from the pytorch model zoo (torchvision.models)
+    eg. VGG, inception, mobilenet, alexnet...
+    """
     black_box_model = resnet50encoder(pretrained=True)
 
     black_box_model.train(False)
     black_box_model = torch.nn.DataParallel(black_box_model).cuda()
 
     def black_box_fn(_images):
-        return black_box_model(adapt_to_image_domain(_images, (-2., 2.)))[-1]
+        return black_box_model(adapt_to_image_domain(_images, (-2.0, 2.0)))[-1]
+
     return black_box_fn

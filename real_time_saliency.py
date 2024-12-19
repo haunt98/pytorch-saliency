@@ -12,22 +12,25 @@ from PIL import Image
 import textwrap
 
 import matplotlib
-matplotlib.use('Agg')
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 TO_SHOW = 737
 CONFIDENCE = 5
 FAST_MODE = True
 POLL_DELAY = 0.01
-LOGITS = 1000*[0]
+LOGITS = 1000 * [0]
 
 SAVE_SIGNAL = False
 
+
 def numpy_to_wx(image):
     height, width, c = image.shape
-    buffer = Image.fromarray(image).convert('RGB').tobytes()
+    buffer = Image.fromarray(image).convert("RGB").tobytes()
     bitmap = wx.Bitmap.FromBuffer(width, height, buffer)
     return bitmap
+
 
 class RealTimeSaliency(wx.Frame):
     # ----------------------------------------------------------------------
@@ -41,44 +44,46 @@ class RealTimeSaliency(wx.Frame):
         self.img_viewer = ImgViewPanel(self)
         self.cls_viewer = ImgViewPanel(panel)
 
-
-
         self.index = 0
-        self.list_ctrl = wx.ListCtrl(panel,
-                                     style=wx.LC_REPORT)
-        self.search_ctrl = wx.TextCtrl(panel, value='Search', size=(200, 25))
+        self.list_ctrl = wx.ListCtrl(panel, style=wx.LC_REPORT)
+        self.search_ctrl = wx.TextCtrl(panel, value="Search", size=(200, 25))
         self.search_ctrl.Bind(wx.EVT_TEXT, self.on_search)
 
-        self.list_ctrl.InsertColumn(0, 'Class name', width=200)
+        self.list_ctrl.InsertColumn(0, "Class name", width=200)
 
         # Static img (optional)
         self.static_img_picker = wx.FilePickerCtrl(panel)
 
-        self.slider_ctrl = wx.Slider(panel, value=4, minValue=-2, maxValue=11, style=wx.SL_MIN_MAX_LABELS|wx.SL_VALUE_LABEL)
+        self.slider_ctrl = wx.Slider(
+            panel,
+            value=4,
+            minValue=-2,
+            maxValue=11,
+            style=wx.SL_MIN_MAX_LABELS | wx.SL_VALUE_LABEL,
+        )
         self.slider_ctrl.Bind(wx.EVT_SCROLL, self.on_slide)
         self.info = wx.StaticText(panel)
-        self.info_ = wx.StaticText(panel, label='Confidence:')
+        self.info_ = wx.StaticText(panel, label="Confidence:")
 
         self.show_items_that_contain()
 
-        btn = wx.Button(panel, label='Choose')
+        btn = wx.Button(panel, label="Choose")
         btn.Bind(wx.EVT_BUTTON, self.choose_class)
 
-        save_btn = wx.Button(panel, label='Save')
+        save_btn = wx.Button(panel, label="Save")
         save_btn.Bind(wx.EVT_BUTTON, self.save_imgs)
 
         hsizer = wx.BoxSizer(wx.HORIZONTAL)
-        hsizer.Add(panel, 1,  wx.ALL | wx.EXPAND, 5)
+        hsizer.Add(panel, 1, wx.ALL | wx.EXPAND, 5)
         hsizer.Add(self.img_viewer, 2, wx.ALL | wx.EXPAND, 5)
 
         self.SetSizer(hsizer)
-
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self.static_img_picker, 0, wx.EXPAND, 5)
         sizer.Add(self.info, 0, wx.ALL | wx.EXPAND, 5)
         sizer.Add(self.info_, 0, wx.TOP | wx.LEFT | wx.EXPAND, 5)
-        sizer.Add(self.slider_ctrl, 0,  wx.EXPAND, 0)
+        sizer.Add(self.slider_ctrl, 0, wx.EXPAND, 0)
         sizer.Add(self.list_ctrl, 3, wx.ALL | wx.EXPAND, 5)
         sizer.Add(self.search_ctrl, 0, wx.ALL | wx.EXPAND, 5)
 
@@ -115,7 +120,7 @@ class RealTimeSaliency(wx.Frame):
                 return None
 
     def update(self):
-        self.info.SetLabel('Showing: %s (logits: %f)' % (CLASS_ID_TO_NAME[TO_SHOW], LOGITS[TO_SHOW]))
+        self.info.SetLabel("Showing: %s (logits: %f)" % (CLASS_ID_TO_NAME[TO_SHOW], LOGITS[TO_SHOW]))
         if self.on_update is not None:
             self.on_update()
         wx.CallLater(100, self.update)
@@ -123,7 +128,7 @@ class RealTimeSaliency(wx.Frame):
     def on_search(self, event):
         self.show_items_that_contain(self.search_ctrl.GetValue())
 
-    def show_items_that_contain(self, text=''):
+    def show_items_that_contain(self, text=""):
         self.list_ctrl.DeleteAllItems()
         i = 0
         for name in list(CLASS_ID_TO_NAME.values()):
@@ -171,7 +176,7 @@ class ImgViewPanel(wx.Panel):
                 dialog.Destroy()
 
             except Exception:
-                print('Could not open the dialog!')
+                print("Could not open the dialog!")
             self.dialog_init_function = False
         wx.CallLater(15, self.update)
 
@@ -180,7 +185,7 @@ class ImgViewPanel(wx.Panel):
         dc.DrawBitmap(self.img_now, 0, 0)
 
     def change_frame(self, image):
-        '''image must be PIL or wx image'''
+        """image must be PIL or wx image"""
         s = self.GetSize()
         x = s.x
         y = s.y
@@ -192,8 +197,9 @@ class ImgViewPanel(wx.Panel):
 
 class RT:
     DELAY_SMOOTH = 0.85
+
     def __init__(self, processor, batch_size=1, view_size=(324, 324)):
-        '''
+        """
         How it works?
         The images are continuously captured and added to the queue together with their frame timestamps.
         Another thread processes the images in the queue by passing them to the processor function.
@@ -206,17 +212,16 @@ class RT:
         Finally the processed images are placed on the display queue together with their timestamps and the display thread takes care of displaying images
         at the correct times by estimating the current overall delay and fps.
         For example if the processor takes 1 second to process one image then the dealy will be 1 second and the resulting fps will be 1.
-        '''
+        """
         self.batch_size = batch_size
         self.processor = processor
         self.cam = None
         self.req_queue = Queue()
         self.display_queue = Queue()
-        self.delay = 0.
-        self.time_per_frame = 0.
+        self.delay = 0.0
+        self.time_per_frame = 0.0
         self.show_image = None
         self.get_custom_rgb_img = None
-
 
     def start(self):
         if self.cam is None:
@@ -246,11 +251,11 @@ class RT:
 
     def stop(self):
         self._stop = True
-        time.sleep(1.)
+        time.sleep(1.0)
 
     def transform(self):
         while not self._stop:
-            if self.req_queue.qsize()< self.batch_size:
+            if self.req_queue.qsize() < self.batch_size:
                 time.sleep(POLL_DELAY)
                 continue
             to_proc = []
@@ -261,11 +266,11 @@ class RT:
                 # usual case, take self.batch_size equally separated items
                 sep = int(len(to_proc) / self.batch_size)
                 old = len(to_proc)
-                to_proc = to_proc[:sep*self.batch_size:sep]
+                to_proc = to_proc[: sep * self.batch_size : sep]
                 assert len(to_proc) == self.batch_size
 
             imgs = np.concatenate(tuple(np.expand_dims(e[1], 0) for e in to_proc), 0)
-            done_imgs = ((self.processor(imgs/(255./2) - 1.) + 1) * (255./2.)).astype(np.uint8)
+            done_imgs = ((self.processor(imgs / (255.0 / 2) - 1.0) + 1) * (255.0 / 2.0)).astype(np.uint8)
 
             for e in range(len(done_imgs)):
                 im = done_imgs[e]
@@ -279,21 +284,22 @@ class RT:
                 time.sleep(POLL_DELAY)
                 continue
             creation_time, im = self.display_queue.get(timeout=11)
-            self.delay = self.DELAY_SMOOTH*self.delay + (1.-self.DELAY_SMOOTH)*(time.time() - creation_time)
+            self.delay = self.DELAY_SMOOTH * self.delay + (1.0 - self.DELAY_SMOOTH) * (time.time() - creation_time)
             while time.time() < creation_time + self.delay:
                 time.sleep(POLL_DELAY)
-            self.time_per_frame = 0.9*self.time_per_frame + 0.1*(time.time() - last_frame)
+            self.time_per_frame = 0.9 * self.time_per_frame + 0.1 * (time.time() - last_frame)
             if self.show_image is not None:
                 self.show_image(im)
             last_frame = time.time()
 
     @property
     def fps(self):
-        return 1./self.time_per_frame
-
+        return 1.0 / self.time_per_frame
 
 
 from saliency_eval import get_pretrained_saliency_fn
+
+
 def get_proc_fn(cuda=False):
     fn = get_pretrained_saliency_fn(cuda=cuda, return_classification_logits=True)
 
@@ -301,7 +307,7 @@ def get_proc_fn(cuda=False):
         global LOGITS
         print(ims.shape)
         if FAST_MODE:
-             sq = square_centrer_crop_resize_op(np.squeeze(ims, 0), (224, 224))
+            sq = square_centrer_crop_resize_op(np.squeeze(ims, 0), (224, 224))
         else:
             sq = cv2.resize(np.squeeze(ims, 0), (288, 512), interpolation=cv2.INTER_AREA)
         sq = np.transpose(sq, (2, 0, 1))
@@ -311,64 +317,69 @@ def get_proc_fn(cuda=False):
         LOGITS = cls[0].cpu().data.numpy()
         probs = softmax(cls)[0].cpu().data.numpy()
 
-
         cls_im = get_probs_np_img(probs)
         frame.cls_viewer.change_frame(cls_im)
 
-
         global SAVE_SIGNAL
         if SAVE_SIGNAL:
-            save_img(sq, 'original')
-            save_img(sq*(1-mask), 'destroyed')
-            save_img(sq*mask, 'preserved')
-            save_img(2*np.concatenate((0.*mask, 0.*mask, mask), 0)-1, 'mask')
+            save_img(sq, "original")
+            save_img(sq * (1 - mask), "destroyed")
+            save_img(sq * mask, "preserved")
+            save_img(2 * np.concatenate((0.0 * mask, 0.0 * mask, mask), 0) - 1, "mask")
             SAVE_SIGNAL = False
 
-        mask = mask/2.
-        sq = sq*(1-mask) + np.concatenate((mask, -mask, -mask), 0)
+        mask = mask / 2.0
+        sq = sq * (1 - mask) + np.concatenate((mask, -mask, -mask), 0)
         return np.expand_dims(np.transpose(sq, (1, 2, 0)), 0)
+
     return proc
+
 
 def square_centrer_crop_resize_op(im, size):
     short_edge = min(im.shape[:2])
     yy = int((im.shape[0] - short_edge) / 2)
     xx = int((im.shape[1] - short_edge) / 2)
-    max_square = im[yy: yy + short_edge, xx: xx + short_edge]
+    max_square = im[yy : yy + short_edge, xx : xx + short_edge]
     return cv2.resize(max_square, size, interpolation=cv2.INTER_AREA)
 
 
 from sal.datasets import imagenet_dataset
+
+
 def get_probs_np_img(probs, num=6):
     top_k, top_k_probs = np.argsort(probs)[::-1][:num], np.sort(probs)[::-1][:num]
     print(top_k, top_k_probs)
     # top_k = [162, 463, 281, 178, 181, 596]
     # top_k_probs = [ 0.20559976,  0.10194654, 0.0338834,  0.03120151,  0.02777977,  0.02264762]
-    objects = ['\n'.join(textwrap.wrap(imagenet_dataset.CLASS_ID_TO_NAME[e], 15)[:2]) for e in top_k]
+    objects = ["\n".join(textwrap.wrap(imagenet_dataset.CLASS_ID_TO_NAME[e], 15)[:2]) for e in top_k]
     y_pos = np.arange(len(objects))
     performance = list(top_k_probs)
 
     plt.figure()
-    plt.bar(y_pos, performance, align='center', alpha=0.8, color='blue')
-    plt.ylim([0.,1.])
-    plt.xticks(y_pos, objects, rotation='vertical')
+    plt.bar(y_pos, performance, align="center", alpha=0.8, color="blue")
+    plt.ylim([0.0, 1.0])
+    plt.xticks(y_pos, objects, rotation="vertical")
 
-    plt.ylabel('Probability')
+    plt.ylabel("Probability")
     plt.tight_layout()
 
     buf = io.BytesIO()
-    plt.savefig(buf, format='png')
+    plt.savefig(buf, format="png")
     buf.seek(0)
 
     im = Image.open(buf)
     plt.close()
 
-    return np.array(im.convert('RGB'))
+    return np.array(im.convert("RGB"))
 
 
 def save_img(img, name):
-    img = np.transpose(img, [1,2,0])
+    img = np.transpose(img, [1, 2, 0])
     img = np.flip(img, 2)
-    cv2.imwrite((name+'.png') if '.' not in name else name, ((img + 1) * (255. / 2.)).astype(np.uint8))
+    cv2.imwrite(
+        (name + ".png") if "." not in name else name,
+        ((img + 1) * (255.0 / 2.0)).astype(np.uint8),
+    )
 
 
 if __name__ == "__main__":
@@ -381,4 +392,3 @@ if __name__ == "__main__":
     frame.on_update = a._get_next_frame
     frame.Show()
     app.MainLoop()
-

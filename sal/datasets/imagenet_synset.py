@@ -1,4 +1,4 @@
-synset = '''n01440764 tench, Tinca tinca
+synset = """n01440764 tench, Tinca tinca
 n01443537 goldfish, Carassius auratus
 n01484850 great white shark, white shark, man-eater, man-eating shark, Carcharodon carcharias
 n01491361 tiger shark, Galeocerdo cuvieri
@@ -997,4 +997,4 @@ n13044778 earthstar
 n13052670 hen-of-the-woods, hen of the woods, Polyporus frondosus, Grifola frondosa
 n13054560 bolete
 n13133613 ear, spike, capitulum
-n15075141 toilet tissue, toilet paper, bathroom tissue'''
+n15075141 toilet tissue, toilet paper, bathroom tissue"""
